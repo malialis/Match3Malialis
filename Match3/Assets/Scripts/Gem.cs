@@ -10,20 +10,39 @@ public class Gem : MonoBehaviour
     [Header("Touch Points")]
     private Vector2 firstTouchPosition;
     private Vector2 finalTouchPosition;
-
     private bool mousePressed;
+
     private float swipeAngle = 0;
 
+    private Gem otherGem;
 
-    // Start is called before the first frame update
-    void Start()
+    public enum GemType
     {
-        
+        blue,
+        green,
+        purple,
+        red,
+        yellow,
+        special
     }
+
+    public GemType type;
+
+
 
     // Update is called once per frame
     void Update()
     {
+        if(Vector2.Distance(transform.position, posIndex) > 0.01f)
+        {
+            transform.position = Vector2.Lerp(transform.position, posIndex, board.gemSpeed * Time.deltaTime);
+        }
+        else
+        {
+            transform.position = new Vector3(posIndex.x, posIndex.y, 0f);
+            board.allGems[posIndex.x, posIndex.y] = this;
+        }
+
         if (mousePressed && Input.GetMouseButtonUp(0))
         {
             mousePressed = false;
@@ -40,7 +59,7 @@ public class Gem : MonoBehaviour
     }
 
     private void OnMouseDown()
-    {        
+    {
         firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePressed = true;
     }
@@ -51,7 +70,7 @@ public class Gem : MonoBehaviour
         swipeAngle = swipeAngle * 180 / Mathf.PI;
         Debug.Log(swipeAngle);
 
-        if(Vector3.Distance(firstTouchPosition, finalTouchPosition) > .5f)
+        if (Vector3.Distance(firstTouchPosition, finalTouchPosition) > .5f)
         {
             MovePieces();
         }
@@ -59,7 +78,33 @@ public class Gem : MonoBehaviour
 
     private void MovePieces()
     {
+        if (swipeAngle < 45 && swipeAngle > -45 && posIndex.x < board.width - 1) // move to the right
+        {
+            otherGem = board.allGems[posIndex.x + 1, posIndex.y];
+            otherGem.posIndex.x--;
+            posIndex.x++;
+        }
+        else if (swipeAngle > 45 && swipeAngle <= 135 && posIndex.y < board.height - 1) // move to the up
+        {
+            otherGem = board.allGems[posIndex.x, posIndex.y + 1];
+            otherGem.posIndex.y--;
+            posIndex.y++;
+        }
+        else if (swipeAngle < -45 && swipeAngle >= -135 && posIndex.y > 0) // move to the down
+        {
+            otherGem = board.allGems[posIndex.x, posIndex.y - 1];
+            otherGem.posIndex.y++;
+            posIndex.y--;
+        }
+        else if (swipeAngle > 135 || swipeAngle < -135 && posIndex.x > 0) // move to the left
+        {
+            otherGem = board.allGems[posIndex.x - 1, posIndex.y];
+            otherGem.posIndex.x++;
+            posIndex.x--;
+        }
 
+        board.allGems[posIndex.x, posIndex.y] = this;
+        board.allGems[otherGem.posIndex.x, otherGem.posIndex.y] = otherGem;
     }
 
 

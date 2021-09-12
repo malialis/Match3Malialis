@@ -9,7 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5803238273985026752, guid: 3ff9fa415c9a04a5db8b187d0527a5ab, type: 3}
       propertyPath: m_Name
-      value: Gem_Yellow
+      value: Gem_Yellow Variant
       objectReference: {fileID: 0}
     - target: {fileID: 5803238273985026753, guid: 3ff9fa415c9a04a5db8b187d0527a5ab, type: 3}
       propertyPath: m_Sprite
@@ -58,6 +58,18 @@ PrefabInstance:
     - target: {fileID: 5803238273985026754, guid: 3ff9fa415c9a04a5db8b187d0527a5ab, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5803238273985026755, guid: 3ff9fa415c9a04a5db8b187d0527a5ab, type: 3}
+      propertyPath: type
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7492211242512569125, guid: 3ff9fa415c9a04a5db8b187d0527a5ab, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 0.86410254
+      objectReference: {fileID: 0}
+    - target: {fileID: 7492211242512569125, guid: 3ff9fa415c9a04a5db8b187d0527a5ab, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 0.93846154
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3ff9fa415c9a04a5db8b187d0527a5ab, type: 3}

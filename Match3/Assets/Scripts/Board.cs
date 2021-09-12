@@ -1,12 +1,13 @@
-//using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Board : MonoBehaviour
 {
-    [SerializeField]private int width;
-    [SerializeField]private int height;
+    public int width;
+    public int height;
+
+    public float gemSpeed;
 
     public GameObject bgTilePrefab;
 
