@@ -38,6 +38,15 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: BG
+    uniqueID: 3191909619
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Gems
+    uniqueID: 431762951
+    locked: 0
+  - name: SFX
+    uniqueID: 2668157269
     locked: 0
