@@ -21,6 +21,7 @@ public class Board : MonoBehaviour
         allGems = new Gem[width, height]; //inialize the array with width and height
 
         Setup();// run the setup to set up the board
+        SetupCamera(); //runs the setup camera to adjust it to the board size
     }
 
     private void Setup()
@@ -53,6 +54,16 @@ public class Board : MonoBehaviour
 
         gem.SetupGem(pos, this);
     }
+    
+private void SetupCamera()
+    {
+        Camera.main.transform.position = new Vector3((float)(width -1 ) / 2f, (float)(height -1) / 2f, -10f);
 
+        float aspectRatio = (float)Screen.width / (float)Screen.height;
+        float verticalSize = (float)height / 2f + (float) borderSize;
+        float horizontalSize = ((float) width / 2f + (float)borderSize) / aspectRatio;
+
+        Camera.main.orthographicSize = (verticalSize > horizontalSize) ? verticalSize: horizontalSize;
+    }
 
 }
