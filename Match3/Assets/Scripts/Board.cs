@@ -130,6 +130,54 @@ public class Board : MonoBehaviour
     {
         yield return new WaitForSeconds(0.2f);
 
+        int nullCounter = 0;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if(allGems[x,y] == null)
+                {
+                    nullCounter++;
+                }
+                else if (nullCounter > 0)
+                {
+                    allGems[x, y].posIndex.y -= nullCounter;
+                    allGems[x, y - nullCounter] = allGems[x, y];
+                    allGems[x, y] = null;
+                }
+            }
+            nullCounter = 0;
+        }
+        StartCoroutine(FillBoardCoroutine());
+    }
+
+    private IEnumerator FillBoardCoroutine()
+    {
+        yield return new WaitForSeconds(0.5f);
+        RefillBoard();
+        yield return new WaitForSeconds(0.5f);
+        matchFind.FindAllMatches();
+        if(matchFind.currentMatches.Count > 0)
+        {
+            yield return new WaitForSeconds(0.75f);
+            DestroyMatches();
+        }
+    }
+
+    private void RefillBoard()
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if(allGems[x,y] == null)
+                {
+                    int gemToUse = Random.Range(0, gems.Length);
+                    SpawnGem(new Vector2Int(x, y), gems[gemToUse]);
+                }                
+            }
+        }
     }
 
 
