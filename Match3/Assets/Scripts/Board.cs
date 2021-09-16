@@ -51,8 +51,13 @@ public class Board : MonoBehaviour
                 bgTile.name = "BG Tile - " + x + ", " + y; // name each tile as the coordinates
 
                 int gemToUse = Random.Range(0, gems.Length); //making a random selection of the gems
+                int iterations = 0;
 
-
+                while (MatchesAt(new Vector2Int(x, y), gems[gemToUse]) && iterations < 100)
+                {
+                    gemToUse = Random.Range(0, gems.Length);
+                    iterations++;
+                }
 
                 SpawnGem(new Vector2Int(x, y), gems[gemToUse]); //spawns the random gem at the new location
             }
@@ -97,6 +102,35 @@ public class Board : MonoBehaviour
         return false;
     }
 
+    private void DestroyMatchedGemAt(Vector2Int pos)
+    {
+        if(allGems[pos.x, pos.y] != null)
+        {
+            if(allGems[pos.x, pos.y].isMatched)
+            {
+                Destroy(allGems[pos.x, pos.y].gameObject);
+                allGems[pos.x, pos.y] = null;
+            }
+        }
+    }
+
+    public void DestroyMatches()
+    {
+        for (int i = 0; i < matchFind.currentMatches.Count; i++)
+        {
+            if(matchFind.currentMatches[i] != null)
+            {
+                DestroyMatchedGemAt(matchFind.currentMatches[i].posIndex);
+            }
+        }
+        StartCoroutine(DecreaseRowCoroutine());
+    }
+
+    private IEnumerator DecreaseRowCoroutine()
+    {
+        yield return new WaitForSeconds(0.2f);
+
+    }
 
 
     private void SetupCamera()
