@@ -13,7 +13,6 @@ public class Gem : MonoBehaviour
     private bool mousePressed;
 
     private float swipeAngle = 0;
-
     private Gem otherGem;
 
     public enum GemType
@@ -27,6 +26,9 @@ public class Gem : MonoBehaviour
     }
 
     public GemType type;
+
+    private Vector2Int previousPos;
+    public bool isMatched;
 
 
 
@@ -78,6 +80,8 @@ public class Gem : MonoBehaviour
 
     private void MovePieces()
     {
+        previousPos = posIndex;
+
         if (swipeAngle < 45 && swipeAngle > -45 && posIndex.x < board.width - 1) // move to the right
         {
             otherGem = board.allGems[posIndex.x + 1, posIndex.y];
@@ -105,6 +109,27 @@ public class Gem : MonoBehaviour
 
         board.allGems[posIndex.x, posIndex.y] = this;
         board.allGems[otherGem.posIndex.x, otherGem.posIndex.y] = otherGem;
+
+        StartCoroutine(CheckMoveCoroutine());
+    }
+
+    public IEnumerator CheckMoveCoroutine()
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        board.matchFind.FindAllMatches();
+        if(otherGem != null)
+        {
+            if (!isMatched && !otherGem.isMatched)
+            {
+                otherGem.posIndex = posIndex;
+                posIndex = previousPos;
+
+                board.allGems[posIndex.x, posIndex.y] = this;
+                board.allGems[otherGem.posIndex.x, otherGem.posIndex.y] = otherGem;
+            }
+        }
+
     }
 
 

@@ -6,6 +6,7 @@ public class Board : MonoBehaviour
 {
     public int width;
     public int height;
+    public int borderSize;
 
     public float gemSpeed;
 
@@ -14,13 +15,27 @@ public class Board : MonoBehaviour
     public Gem[] gems; // an array of the Gems prefabs
     public Gem[,] allGems; // 2d array of Gems
 
+    [HideInInspector]
+    public MatchFinder matchFind;
+
+
+    private void Awake()
+    {
+        matchFind = FindObjectOfType<MatchFinder>();
+        allGems = new Gem[width, height]; //inialize the array with width and height
+    }
 
     // Start is called before the first frame update
     void Start()
-    {
-        allGems = new Gem[width, height]; //inialize the array with width and height
+    {        
 
         Setup();// run the setup to set up the board
+        SetupCamera(); // adjusts camera to board size
+    }
+
+    private void Update()
+    {
+        matchFind.FindAllMatches();
     }
 
     private void Setup()
@@ -36,6 +51,9 @@ public class Board : MonoBehaviour
                 bgTile.name = "BG Tile - " + x + ", " + y; // name each tile as the coordinates
 
                 int gemToUse = Random.Range(0, gems.Length); //making a random selection of the gems
+
+
+
                 SpawnGem(new Vector2Int(x, y), gems[gemToUse]); //spawns the random gem at the new location
             }
         }
@@ -52,6 +70,44 @@ public class Board : MonoBehaviour
         allGems[pos.x, pos.y] = gem; // stores the gems coordinates
 
         gem.SetupGem(pos, this);
+    }
+
+    private bool MatchesAt(Vector2Int posToCheck, Gem gemToCheck)
+    {
+        if(posToCheck.x > 1)
+        {
+            //checks to the left
+            if(allGems[posToCheck.x - 1, posToCheck.y].type == gemToCheck.type &&
+               allGems[posToCheck.x - 2, posToCheck.y].type == gemToCheck.type)
+            {
+                return true;
+            }
+        }
+
+        if (posToCheck.y > 1)
+        {
+            //checks to the above
+            if (allGems[posToCheck.x, posToCheck.y - 1].type == gemToCheck.type &&
+                allGems[posToCheck.x, posToCheck.y - 2].type == gemToCheck.type)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+
+    private void SetupCamera()
+    {
+        Camera.main.transform.position = new Vector3((float)(width - 1) / 2f, (float)(height - 1) / 2f, -10f);
+
+        float aspectRatio = (float)Screen.width / (float)Screen.height;
+        float verticalSize = (float)height / 2f + (float)borderSize;
+        float horizontalSize = ((float)width / 2f + (float)borderSize) / aspectRatio;
+
+        Camera.main.orthographicSize = (verticalSize > horizontalSize) ? verticalSize : horizontalSize;
     }
 
 
