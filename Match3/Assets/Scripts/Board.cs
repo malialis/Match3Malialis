@@ -18,24 +18,30 @@ public class Board : MonoBehaviour
     [HideInInspector]
     public MatchFinder matchFind;
 
+    public enum BoardState
+    {
+        wait,
+        move
+    }
+
+    public BoardState currentState = BoardState.move;
 
     private void Awake()
     {
-        matchFind = FindObjectOfType<MatchFinder>();
-        allGems = new Gem[width, height]; //inialize the array with width and height
+        matchFind = FindObjectOfType<MatchFinder>();        
     }
 
     // Start is called before the first frame update
     void Start()
-    {        
-
+    {
+        allGems = new Gem[width, height]; //inialize the array with width and height
         Setup();// run the setup to set up the board
         SetupCamera(); // adjusts camera to board size
     }
 
     private void Update()
     {
-        matchFind.FindAllMatches();
+       // matchFind.FindAllMatches();
     }
 
     private void Setup()
@@ -58,7 +64,6 @@ public class Board : MonoBehaviour
                     gemToUse = Random.Range(0, gems.Length);
                     iterations++;
                 }
-
                 SpawnGem(new Vector2Int(x, y), gems[gemToUse]); //spawns the random gem at the new location
             }
         }
@@ -69,7 +74,7 @@ public class Board : MonoBehaviour
 
     private void SpawnGem(Vector2Int pos, Gem gemToSpawn)
     {
-        Gem gem = Instantiate(gemToSpawn, new Vector3(pos.x, pos.y, 0), Quaternion.identity); //instaniates the gem
+        Gem gem = Instantiate(gemToSpawn, new Vector3(pos.x, pos.y + height, 0), Quaternion.identity); //instaniates the gem
         gem.transform.parent = this.transform;
         gem.name = "Gem - " + pos.x + ", " + pos.y; // names the gem with the x y
         allGems[pos.x, pos.y] = gem; // stores the gems coordinates
@@ -102,6 +107,8 @@ public class Board : MonoBehaviour
         return false;
     }
 
+    #region matches
+
     private void DestroyMatchedGemAt(Vector2Int pos)
     {
         if(allGems[pos.x, pos.y] != null)
@@ -125,6 +132,10 @@ public class Board : MonoBehaviour
         }
         StartCoroutine(DecreaseRowCoroutine());
     }
+
+    #endregion
+
+    #region refill board and destroying
 
     private IEnumerator DecreaseRowCoroutine()
     {
@@ -163,6 +174,11 @@ public class Board : MonoBehaviour
             yield return new WaitForSeconds(0.75f);
             DestroyMatches();
         }
+        else
+        {
+            yield return new WaitForSeconds(0.5f);
+            currentState = BoardState.move;
+        }
     }
 
     private void RefillBoard()
@@ -178,7 +194,32 @@ public class Board : MonoBehaviour
                 }                
             }
         }
+        CheckForMisplacedGems();
     }
+
+    private void CheckForMisplacedGems()
+    {
+        List<Gem> foundGems = new List<Gem>();
+
+        foundGems.AddRange(FindObjectsOfType<Gem>());
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (foundGems.Contains(allGems[x, y]))
+                {
+                    foundGems.Remove(allGems[x, y]);
+                }
+            }
+        }
+        foreach(Gem g in foundGems)
+        {
+            Destroy(g.gameObject);
+        }
+
+    }
+
+    #endregion
 
 
     private void SetupCamera()

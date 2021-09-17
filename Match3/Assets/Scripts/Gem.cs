@@ -33,7 +33,7 @@ public class Gem : MonoBehaviour
 
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if(Vector2.Distance(transform.position, posIndex) > 0.01f)
         {
@@ -48,8 +48,12 @@ public class Gem : MonoBehaviour
         if (mousePressed && Input.GetMouseButtonUp(0))
         {
             mousePressed = false;
-            finalTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            CalculateAngle();
+
+            if(board.currentState == Board.BoardState.move)
+            {
+                finalTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                CalculateAngle();
+            }
         }
     }
 
@@ -62,16 +66,18 @@ public class Gem : MonoBehaviour
 
     private void OnMouseDown()
     {
-        firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePressed = true;
+        if (board.currentState == Board.BoardState.move)
+        {
+            firstTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePressed = true;
+        }        
     }
 
     private void CalculateAngle()
     {
         swipeAngle = Mathf.Atan2(finalTouchPosition.y - firstTouchPosition.y, finalTouchPosition.x - firstTouchPosition.x);
         swipeAngle = swipeAngle * 180 / Mathf.PI;
-        Debug.Log(swipeAngle);
-
+        
         if (Vector3.Distance(firstTouchPosition, finalTouchPosition) > .5f)
         {
             MovePieces();
@@ -82,25 +88,25 @@ public class Gem : MonoBehaviour
     {
         previousPos = posIndex;
 
-        if (swipeAngle < 45 && swipeAngle > -45 && posIndex.x < board.width - 1) // move to the right
+        if (swipeAngle < 45 && swipeAngle > -45 && posIndex.x < board.width - 1)
         {
             otherGem = board.allGems[posIndex.x + 1, posIndex.y];
             otherGem.posIndex.x--;
             posIndex.x++;
         }
-        else if (swipeAngle > 45 && swipeAngle <= 135 && posIndex.y < board.height - 1) // move to the up
+        else if (swipeAngle > 45 && swipeAngle <= 135 && posIndex.y < board.height - 1)
         {
             otherGem = board.allGems[posIndex.x, posIndex.y + 1];
             otherGem.posIndex.y--;
             posIndex.y++;
         }
-        else if (swipeAngle < -45 && swipeAngle >= -135 && posIndex.y > 0) // move to the down
+        else if (swipeAngle < -45 && swipeAngle >= -135 && posIndex.y > 0)
         {
             otherGem = board.allGems[posIndex.x, posIndex.y - 1];
             otherGem.posIndex.y++;
             posIndex.y--;
         }
-        else if (swipeAngle > 135 || swipeAngle < -135 && posIndex.x > 0) // move to the left
+        else if (swipeAngle > 135 || swipeAngle < -135 && posIndex.x > 0)
         {
             otherGem = board.allGems[posIndex.x - 1, posIndex.y];
             otherGem.posIndex.x++;
@@ -115,9 +121,12 @@ public class Gem : MonoBehaviour
 
     public IEnumerator CheckMoveCoroutine()
     {
+        board.currentState = Board.BoardState.wait;
+
         yield return new WaitForSeconds(0.5f);
 
         board.matchFind.FindAllMatches();
+
         if(otherGem != null)
         {
             if (!isMatched && !otherGem.isMatched)
@@ -127,6 +136,9 @@ public class Gem : MonoBehaviour
 
                 board.allGems[posIndex.x, posIndex.y] = this;
                 board.allGems[otherGem.posIndex.x, otherGem.posIndex.y] = otherGem;
+
+                yield return new WaitForSeconds(0.5f);
+                board.currentState = Board.BoardState.move;
             }
             else
             {
